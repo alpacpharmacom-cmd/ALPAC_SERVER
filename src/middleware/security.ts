@@ -10,15 +10,31 @@ export const securityHeaders = helmet({
 });
 
 // 2. CORS Configuration
-const allowedOrigins = [
-  config.CORS_ORIGIN,
+// Hardcoded list ensures CORS works on Vercel regardless of env var state
+const ALLOWED_ORIGINS = [
+  'https://alpac-client.vercel.app',
   'http://localhost:5173',
-  'https://alpac-client.vercel.app'
+  'http://localhost:3000',
 ];
 
 export const corsMiddleware = cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, origin);
+    }
+    // Also allow any env-configured origin
+    if (config.CORS_ORIGIN && origin === config.CORS_ORIGIN) {
+      return callback(null, origin);
+    }
+    return callback(new Error(`CORS: origin '${origin}' not allowed`));
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  preflightContinue: false,
+  optionsSuccessStatus: 200,
 });
 
 // 3. Express 5 Compatibility fix for express-mongo-sanitize

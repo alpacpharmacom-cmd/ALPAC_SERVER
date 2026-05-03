@@ -20,6 +20,8 @@ const app = express();
 // ==================== SECURITY & HEADERS ====================
 app.use(securityHeaders);
 app.use(corsMiddleware);
+// Explicitly handle OPTIONS preflight for all routes (required in serverless)
+app.options('*', corsMiddleware);
 app.use(express5QueryFix);
 app.use(nosqlSanitizer);
 
