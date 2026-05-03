@@ -5,7 +5,9 @@ import mongoSanitize from 'express-mongo-sanitize';
 import { config } from '../utils/config';
 
 // 1. Helmet Security Headers
-export const securityHeaders = helmet();
+export const securityHeaders = helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+});
 
 // 2. CORS Configuration
 const allowedOrigins = [
