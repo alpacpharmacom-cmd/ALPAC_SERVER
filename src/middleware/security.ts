@@ -11,7 +11,7 @@ export const securityHeaders = helmet();
 const allowedOrigins = [
   config.CORS_ORIGIN,
   'http://localhost:5173',
-  'http://localhost:5174',
+  'https://alpac-client.vercel.app'
 ];
 
 export const corsMiddleware = cors({
