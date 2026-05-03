@@ -44,7 +44,7 @@ const connectDB = async () => {
   } catch (error) {
     cached!.promise = null; // Reset promise so we can attempt to connect again later
     console.error('[database]: Connection error:', error);
-    process.exit(1);
+    throw error;
   }
 
   return cached!.conn;

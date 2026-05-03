@@ -19,9 +19,10 @@ const envSchema = z.object({
 const _env = envSchema.safeParse(process.env);
 
 if (!_env.success) {
+  const errMsg = `[config]: ❌ Invalid environment variables: ${JSON.stringify(_env.error.format())}`;
   // eslint-disable-next-line no-console
-  console.error('[config]: ❌ Invalid environment variables:', _env.error.format());
-  process.exit(1);
+  console.error(errMsg);
+  throw new Error(errMsg);
 }
 
 export const config = _env.data;
