@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-dotenv.config({ override: true });
+dotenv.config(); // No 'override: true' — Vercel dashboard env vars must not be overwritten by .env
+
 import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import hpp from 'hpp';

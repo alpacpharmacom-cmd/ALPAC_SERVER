@@ -10,22 +10,22 @@ export const securityHeaders = helmet({
 });
 
 // 2. CORS Configuration
-// Hardcoded list ensures CORS works on Vercel regardless of env var state
+// Localhost origins are only included in development to avoid production bypass vectors.
+const PRODUCTION_ORIGINS = ['https://alpac-client.vercel.app'];
+const DEV_ORIGINS = ['http://localhost:5173', 'http://localhost:3000'];
+
 const ALLOWED_ORIGINS = [
-  'https://alpac-client.vercel.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
+  ...PRODUCTION_ORIGINS,
+  ...(config.NODE_ENV !== 'production' ? DEV_ORIGINS : []),
+  ...(config.CORS_ORIGIN ? [config.CORS_ORIGIN] : []),
 ];
 
 export const corsMiddleware = cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    // No origin = server-to-server / non-browser (curl, Postman).
+    // These are not protected by CORS anyway, so allow them through.
     if (!origin) return callback(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) {
-      return callback(null, origin);
-    }
-    // Also allow any env-configured origin
-    if (config.CORS_ORIGIN && origin === config.CORS_ORIGIN) {
       return callback(null, origin);
     }
     return callback(new Error(`CORS: origin '${origin}' not allowed`));
