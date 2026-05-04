@@ -18,6 +18,11 @@ import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
 
+// Trust Vercel's proxy so X-Forwarded-For is used for real client IPs.
+// Without this, every request appears to come from the same internal IP,
+// causing the rate limiter to incorrectly throttle all users together.
+app.set('trust proxy', 1);
+
 // ==================== SECURITY & HEADERS ====================
 app.use(securityHeaders);
 app.use(corsMiddleware);
@@ -27,6 +32,8 @@ app.use(express5QueryFix);
 app.use(nosqlSanitizer);
 
 // ==================== RATE LIMITING ====================
+// Rate limiters are placed AFTER corsMiddleware so that any 429 rejection
+// response still includes the Access-Control-Allow-Origin header.
 app.use('/api', generalLimiter);
 app.use('/api/users/login', authLimiter);
 app.use('/api/users/register', authLimiter);
