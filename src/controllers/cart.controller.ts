@@ -10,6 +10,15 @@ export const getCart = asyncHandler(async (req: AuthRequest, res: Response) => {
 
   if (!cart) {
     cart = await Cart.create({ user: req.user._id, items: [] });
+  } else {
+    // Filter out items with null products (deleted products)
+    const originalCount = cart.items.length;
+    cart.items = cart.items.filter((item: any) => item.product !== null) as any;
+    
+    // If we removed any items, save the cleaned-up cart
+    if (cart.items.length !== originalCount) {
+      await cart.save();
+    }
   }
 
   successResponse(res, cart, 'Cart retrieved successfully');
@@ -31,7 +40,6 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
   let cart = await Cart.findOne({ user: req.user._id });
 
   if (!cart) {
-
     cart = new Cart({
       user: req.user._id,
       items: [{ product: productId, quantity: qty }],
@@ -45,17 +53,17 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     if (itemIndex > -1) {
       // Update quantity
       const newQuantity = cart.items[itemIndex].quantity + qty;
-
-
       cart.items[itemIndex].quantity = newQuantity;
     } else {
-
       cart.items.push({ product: productId, quantity: qty });
     }
   }
 
   await cart.save();
   await cart.populate({ path: 'items.product', select: '-countInStock' });
+
+  // Safety filter after population to ensure no null products are sent
+  cart.items = cart.items.filter((item: any) => item.product !== null) as any;
 
   successResponse(res, cart, 'Product added to cart successfully');
 });
