@@ -11,7 +11,13 @@ export default async function handler(req: any, res: any) {
 
     // Still need CORS headers on error responses so the browser can read the body
     const origin: string = req.headers['origin'] || '';
-    if (origin === 'https://alpac-client.vercel.app') {
+    const allowedOrigins = [
+      'https://alpac-client.vercel.app',
+      'https://www.alwadicare.com',
+      'https://alwadicare.com',
+    ];
+
+    if (allowedOrigins.includes(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
     }

@@ -11,7 +11,11 @@ export const securityHeaders = helmet({
 
 // 2. CORS Configuration
 // Localhost origins are only included in development to avoid production bypass vectors.
-const PRODUCTION_ORIGINS = ['https://alpac-client.vercel.app'];
+const PRODUCTION_ORIGINS = [
+  'https://alpac-client.vercel.app',
+  'https://www.alwadicare.com',
+  'https://alwadicare.com',
+];
 const DEV_ORIGINS = ['http://localhost:5173', 'http://localhost:3000'];
 
 const ALLOWED_ORIGINS = [
