@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config(); // No 'override: true' — Vercel dashboard env vars must not be overwritten by .env
 
 import express, { Request, Response } from 'express';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
 import {
@@ -25,6 +26,7 @@ app.set('trust proxy', 1);
 
 // ==================== SECURITY & HEADERS ====================
 app.use(securityHeaders);
+app.use(compression());
 app.use(corsMiddleware);
 // Explicitly handle OPTIONS preflight for all routes (required in serverless)
 app.options(/.*/, corsMiddleware);
