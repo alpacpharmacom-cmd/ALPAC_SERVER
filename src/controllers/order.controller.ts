@@ -28,7 +28,7 @@ async function checkIsFirstOrder(userId: string | mongoose.Types.ObjectId): Prom
 }
 
 export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { orderItems, shippingAddress } = req.body;
+  const { orderItems, shippingAddress, idempotencyKey } = req.body;
 
   if (!orderItems || orderItems.length === 0) {
     res.status(400);
@@ -38,6 +38,15 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
   if (!shippingAddress) {
     res.status(400);
     throw new Error('Shipping address is required');
+  }
+
+  // --- Idempotency check ---
+  // If the client sent a key and we already have an order for it, return it immediately.
+  if (idempotencyKey) {
+    const existing = await Order.findOne({ user: req.user._id, idempotencyKey });
+    if (existing) {
+      return successResponse(res, existing, 'Order already created', 200);
+    }
   }
 
   const session = await mongoose.startSession();
@@ -53,6 +62,13 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
       if (!product) {
         res.status(404);
         throw new Error(`Product not found: ${item.product}`);
+      }
+
+      if (!product.isActive) {
+        res.status(400);
+        throw new Error(
+          `"${product.name}" is no longer available. Please remove it from your cart.`
+        );
       }
 
       const qty = Number(item.quantity) || 1;
@@ -114,6 +130,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
           taxPrice,
           totalPrice,
           isFirstOrder,
+          ...(idempotencyKey ? { idempotencyKey } : {}),
         },
       ],
       { session }
@@ -135,8 +152,15 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
     }
 
     successResponse(res, order, 'Order created successfully', 201);
-  } catch (error) {
+  } catch (error: any) {
     await session.abortTransaction();
+    // MongoDB duplicate key on idempotencyKey — a concurrent request already created this order.
+    if (error.code === 11000 && error.keyPattern?.idempotencyKey && idempotencyKey) {
+      const existing = await Order.findOne({ user: req.user._id, idempotencyKey });
+      if (existing) {
+        return successResponse(res, existing, 'Order already created', 200);
+      }
+    }
     throw error;
   } finally {
     session.endSession();
@@ -279,6 +303,13 @@ export const acceptOrder = asyncHandler(async (req: AuthRequest, res: Response) 
       if (!product) {
         res.status(404);
         throw new Error(`Product "${item.name}" no longer exists and cannot be fulfilled.`);
+      }
+
+      if (!product.isActive) {
+        res.status(400);
+        throw new Error(
+          `Product "${item.name}" has been deactivated and cannot be fulfilled. Please decline this order.`
+        );
       }
 
       if (product.countInStock < item.quantity) {

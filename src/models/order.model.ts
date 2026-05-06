@@ -6,6 +6,7 @@ export interface IOrderItem {
   image: string;
   price: number;
   quantity: number;
+  totalItemPrice: number;
 }
 
 export interface IOrder extends Document {
@@ -33,6 +34,7 @@ export interface IOrder extends Document {
     | 'declined'
     | 'cancelled';
   adminNote?: string;
+  idempotencyKey?: string;
   deliveredAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -60,6 +62,11 @@ const orderItemSchema = new Schema<IOrderItem>({
     type: Number,
     required: true,
     min: [1, 'Quantity cannot be less than 1.'],
+  },
+  totalItemPrice: {
+    type: Number,
+    required: true,
+    default: 0,
   },
 });
 
@@ -118,6 +125,10 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       default: '',
     },
+    idempotencyKey: {
+      type: String,
+      sparse: true,
+    },
     deliveredAt: {
       type: Date,
     },
@@ -130,6 +141,7 @@ const orderSchema = new Schema<IOrder>(
 orderSchema.index({ user: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ idempotencyKey: 1 }, { unique: true, sparse: true });
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 

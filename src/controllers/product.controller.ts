@@ -5,7 +5,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import { successResponse } from '../utils/apiResponse';
 
 export const getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const products = await Product.find({})
+  const products = await Product.find({ isActive: true })
     .select(
       '_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock reviews offer'
     )
@@ -25,7 +25,7 @@ export const getProducts = asyncHandler(async (req: Request, res: Response): Pro
 });
 
 export const getTopRatedProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const products = await Product.find({})
+  const products = await Product.find({ isActive: true })
     .sort({ rating: -1, numReviews: -1 })
     .limit(8)
     .select('_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock offer')
@@ -42,7 +42,7 @@ export const getTopRatedProducts = asyncHandler(async (req: Request, res: Respon
 });
 
 export const getNewArrivals = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const products = await Product.find({})
+  const products = await Product.find({ isActive: true })
     .sort({ createdAt: -1 })
     .limit(8)
     .select('_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock offer')
@@ -59,7 +59,7 @@ export const getNewArrivals = asyncHandler(async (req: Request, res: Response): 
 });
 
 export const getProductById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const product = await Product.findById(req.params.id).lean();
+  const product = await Product.findOne({ _id: req.params.id, isActive: true }).lean();
 
   if (product) {
     const productBase = product as unknown as IProductBase;
@@ -138,7 +138,7 @@ export const createProduct = asyncHandler(
 
 export const updateProduct = asyncHandler(
   async (req: AuthRequest, res: Response): Promise<void> => {
-    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer } =
+    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer, isActive } =
       req.body;
 
     const product = await Product.findById(req.params.id);
@@ -154,6 +154,7 @@ export const updateProduct = asyncHandler(
       product.oldPrice = oldPrice !== undefined ? oldPrice : product.oldPrice;
       product.discountPercentage = discountPercentage !== undefined ? discountPercentage : product.discountPercentage;
       product.offer = offer !== undefined ? offer : product.offer;
+      product.isActive = isActive !== undefined ? isActive : product.isActive;
 
       const updatedProduct = await product.save();
       successResponse(res, updatedProduct, 'Product updated successfully');

@@ -27,6 +27,7 @@ export interface IProductBase {
     get: number;
     isActive: boolean;
   };
+  isActive: boolean;
   user: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -117,6 +118,11 @@ const productSchema = new Schema<IProduct>(
       buy: { type: Number, default: 0 },
       get: { type: Number, default: 0 },
       isActive: { type: Boolean, default: false },
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true,
     },
   },
   {
