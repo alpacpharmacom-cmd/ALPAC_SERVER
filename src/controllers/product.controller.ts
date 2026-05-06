@@ -5,7 +5,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import { successResponse } from '../utils/apiResponse';
 
 export const getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const products = await Product.find({ isActive: true })
+  const products = await Product.find({ isActive: { $ne: false } })
     .select(
       '_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock reviews offer'
     )
@@ -25,7 +25,7 @@ export const getProducts = asyncHandler(async (req: Request, res: Response): Pro
 });
 
 export const getTopRatedProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const products = await Product.find({ isActive: true })
+  const products = await Product.find({ isActive: { $ne: false } })
     .sort({ rating: -1, numReviews: -1 })
     .limit(8)
     .select('_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock offer')
@@ -42,7 +42,7 @@ export const getTopRatedProducts = asyncHandler(async (req: Request, res: Respon
 });
 
 export const getNewArrivals = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const products = await Product.find({ isActive: true })
+  const products = await Product.find({ isActive: { $ne: false } })
     .sort({ createdAt: -1 })
     .limit(8)
     .select('_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock offer')
@@ -59,7 +59,7 @@ export const getNewArrivals = asyncHandler(async (req: Request, res: Response): 
 });
 
 export const getProductById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const product = await Product.findOne({ _id: req.params.id, isActive: true }).lean();
+  const product = await Product.findOne({ _id: req.params.id, isActive: { $ne: false } }).lean();
 
   if (product) {
     const productBase = product as unknown as IProductBase;
