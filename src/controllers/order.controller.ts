@@ -7,7 +7,7 @@ import { Cart } from '../models/cart.model';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { successResponse } from '../utils/apiResponse';
 import { sendEmail } from '../utils/sendEmail';
-import { getOrderCreatedTemplate, getOrderCancelledTemplate } from '../utils/emailTemplates';
+import { getOrderCreatedTemplate, getOrderAcceptedTemplate, getOrderDeclinedTemplate, getOrderCancelledTemplate } from '../utils/emailTemplates';
 
 interface PopulatedUser {
   _id: mongoose.Types.ObjectId;
@@ -97,14 +97,9 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
     const taxPrice = 0;
     const totalPrice = Number((itemsPrice - discountPrice).toFixed(2));
 
-    // Decrement stock
-    for (const item of validatedItems) {
-      await Product.findByIdAndUpdate(
-        item.product,
-        { $inc: { countInStock: -item.quantity } },
-        { session }
-      );
-    }
+    // NOTE: Stock is NOT decremented here.
+    // Stock is only decremented when an admin explicitly accepts the order.
+    // This prevents locking inventory for unconfirmed orders.
 
     // Create order
     const [order] = await Order.create(
@@ -129,13 +124,13 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
 
     await session.commitTransaction();
 
-    // Trigger Email Notification (Non-blocking)
+    // Trigger Order Confirmation Email (Non-blocking)
     if (req.user.email) {
       sendEmail({
         email: req.user.email,
-        subject: `Order Confirmation - ${order._id}`,
-        message: `Thank you for your order! Your order ID is ${order._id}.`,
-        html: getOrderCreatedTemplate(order),
+        subject: `Order Received - #${String(order._id).slice(-8).toUpperCase()}`,
+        message: `Thank you for your order! Your order ID is ${order._id}. We will notify you once our team reviews it.`,
+        html: getOrderCreatedTemplate(order as any),
       });
     }
 
@@ -259,29 +254,6 @@ export const getAllOrders = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const acceptOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const order = await Order.findById(req.params.id);
-
-  if (!order) {
-    res.status(404);
-    throw new Error('Order not found');
-  }
-
-  if (order.status !== 'pending') {
-    res.status(400);
-    throw new Error(
-      `Cannot accept an order with status "${order.status}". Only pending orders can be accepted.`
-    );
-  }
-
-  order.status = 'accepted';
-  order.adminNote = req.body.note || '';
-
-  const updatedOrder = await order.save();
-
-  successResponse(res, updatedOrder, 'Order accepted successfully');
-});
-
-export const declineOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -295,46 +267,96 @@ export const declineOrder = asyncHandler(async (req: AuthRequest, res: Response)
 
     if (order.status !== 'pending') {
       res.status(400);
-      throw new Error(`Cannot decline an order with status "${order.status}".`);
+      throw new Error(
+        `Cannot accept an order with status "${order.status}". Only pending orders can be accepted.`
+      );
     }
 
+    // Validate stock availability and decrement on acceptance
     for (const item of order.orderItems) {
+      const product = await Product.findById(item.product).session(session);
+
+      if (!product) {
+        res.status(404);
+        throw new Error(`Product "${item.name}" no longer exists and cannot be fulfilled.`);
+      }
+
+      if (product.countInStock < item.quantity) {
+        res.status(400);
+        throw new Error(
+          `Insufficient stock for "${product.name}". Available: ${product.countInStock}, Required: ${item.quantity}.`
+        );
+      }
+
       await Product.findByIdAndUpdate(
         item.product,
-        { $inc: { countInStock: item.quantity } },
+        { $inc: { countInStock: -item.quantity } },
         { session }
       );
     }
 
-    order.status = 'declined';
+    order.status = 'accepted';
     order.adminNote = req.body.note || '';
 
     const updatedOrder = await order.save({ session });
 
     await session.commitTransaction();
 
-    // Trigger Email Notification (Non-blocking)
-    const populatedOrder = (await Order.findById(order._id).populate(
-      'user',
-      'name email'
-    )) as unknown as PopulatedOrder;
+    // Notify the user via email (Non-blocking)
+    const populatedOrder = (await Order.findById(order._id)
+      .populate('user', 'name email')) as unknown as PopulatedOrder;
 
     if (populatedOrder && populatedOrder.user?.email) {
       sendEmail({
         email: populatedOrder.user.email,
-        subject: `Order Declined - ${order._id}`,
-        message: `Your order ${order._id} has been declined.`,
-        html: getOrderCancelledTemplate(populatedOrder),
+        subject: `Order Accepted - #${String(order._id).slice(-8).toUpperCase()}`,
+        message: `Your order ${order._id} has been accepted and is being prepared for dispatch.`,
+        html: getOrderAcceptedTemplate(populatedOrder as any),
       });
     }
 
-    successResponse(res, updatedOrder, 'Order declined successfully');
+    successResponse(res, updatedOrder, 'Order accepted successfully');
   } catch (error) {
     await session.abortTransaction();
     throw error;
   } finally {
     session.endSession();
   }
+});
+
+export const declineOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
+  // Stock was never decremented for a pending order, so no restoration needed.
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+
+  if (order.status !== 'pending') {
+    res.status(400);
+    throw new Error(`Cannot decline an order with status "${order.status}".`);
+  }
+
+  order.status = 'declined';
+  order.adminNote = req.body.note || '';
+
+  const updatedOrder = await order.save();
+
+  // Notify the user via email (Non-blocking)
+  const populatedOrder = (await Order.findById(order._id)
+    .populate('user', 'name email')) as unknown as PopulatedOrder;
+
+  if (populatedOrder && populatedOrder.user?.email) {
+    sendEmail({
+      email: populatedOrder.user.email,
+      subject: `Order Update - #${String(order._id).slice(-8).toUpperCase()}`,
+      message: `Your order ${order._id} has been declined. Please contact support for more information.`,
+      html: getOrderDeclinedTemplate(populatedOrder as any),
+    });
+  }
+
+  successResponse(res, updatedOrder, 'Order declined successfully');
 });
 
 export const updateOrderStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
