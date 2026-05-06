@@ -65,6 +65,16 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
       }
 
       const effectivePrice = Number(product.price.toFixed(2));
+      let itemPrice = effectivePrice * qty;
+
+      // Apply Buy X Get Y Offer
+      if (product.offer && product.offer.isActive && product.offer.buy > 0 && product.offer.get > 0) {
+        const { buy, get } = product.offer;
+        const bundles = Math.floor(qty / (buy + get));
+        const remainder = qty % (buy + get);
+        const paidQuantity = (bundles * buy) + Math.min(remainder, buy);
+        itemPrice = effectivePrice * paidQuantity;
+      }
 
       validatedItems.push({
         product: product._id,
@@ -72,11 +82,12 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
         image: product.image,
         price: effectivePrice,
         quantity: qty,
+        totalItemPrice: Number(itemPrice.toFixed(2)),
       });
     }
 
     // Calculate prices
-    const itemsPrice = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const itemsPrice = validatedItems.reduce((sum, item) => sum + (item as any).totalItemPrice, 0);
 
     // First Order Discount (10% on itemsPrice)
     const isFirstOrder = await checkIsFirstOrder(req.user._id);

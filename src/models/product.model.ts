@@ -22,6 +22,11 @@ export interface IProductBase {
   discountPercentage?: number;
   countInStock: number;
   reviews: IReview[];
+  offer?: {
+    buy: number;
+    get: number;
+    isActive: boolean;
+  };
   user: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -108,6 +113,11 @@ const productSchema = new Schema<IProduct>(
       default: 0,
     },
     reviews: [reviewSchema],
+    offer: {
+      buy: { type: Number, default: 0 },
+      get: { type: Number, default: 0 },
+      isActive: { type: Boolean, default: false },
+    },
   },
   {
     timestamps: true,
