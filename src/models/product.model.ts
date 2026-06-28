@@ -28,6 +28,8 @@ export interface IProductBase {
     isActive: boolean;
   };
   isActive: boolean;
+  ingredients?: string;
+  howToUse?: string;
   user: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -123,6 +125,14 @@ const productSchema = new Schema<IProduct>(
       type: Boolean,
       required: true,
       default: true,
+    },
+    ingredients: {
+      type: String,
+      default: '',
+    },
+    howToUse: {
+      type: String,
+      default: '',
     },
   },
   {
