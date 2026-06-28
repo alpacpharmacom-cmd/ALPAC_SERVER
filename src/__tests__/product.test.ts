@@ -17,6 +17,7 @@ vi.mock('../models/product.model', () => {
   return {
     Product: {
       find: vi.fn(() => mockQuery),
+      findOne: vi.fn(() => mockQuery),
       findById: vi.fn(() => mockQuery),
     },
   };
