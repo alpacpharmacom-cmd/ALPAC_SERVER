@@ -20,7 +20,7 @@ describe('Auth API', () => {
 
   describe('POST /api/users/register', () => {
     it('should register a new user successfully', async () => {
-      const userData = { email: 'test@example.com', name: 'Test User', phone: '1234567890', password: 'password123' };
+      const userData = { email: 'test@example.com', name: 'Test User', password: 'password123' };
 
       (User.findOne as Mock).mockResolvedValue(null);
       (User.create as Mock).mockResolvedValue({
@@ -37,7 +37,7 @@ describe('Auth API', () => {
     });
 
     it('should return 400 if user already exists', async () => {
-      const userData = { email: 'test@example.com', name: 'Test User', phone: '1234567890', password: 'password123' };
+      const userData = { email: 'test@example.com', name: 'Test User', password: 'password123' };
 
       (User.findOne as Mock).mockResolvedValue({ _id: '507f1f77bcf86cd799439011' });
 

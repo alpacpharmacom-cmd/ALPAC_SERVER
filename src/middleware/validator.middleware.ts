@@ -116,41 +116,21 @@ export const productValidator = [
     .trim()
     .notEmpty()
     .withMessage('Category is required')
-    .isIn([
-      'skin care',
-      'hair care',
-      'intimate',
-      'kids care',
-      'oral care',
-      'muscles & joints',
-      'antiseptics',
-      'anti scar',
-      'vitamins',
-      'supplements',
-      'wellness'
-    ])
-    .withMessage('Invalid category'),
+    .isIn(['cosmetics', 'nutrients'])
+    .withMessage('Category must be either cosmetics or nutrients'),
   body('subcategory')
     .trim()
     .notEmpty()
     .withMessage('Subcategory is required')
     .custom((value, { req }) => {
-      const subcategoryMap: Record<string, string[]> = {
-        'skin care': ['dry skin', 'oily skin', 'sensitive skin', 'anti aging', 'hydration'],
-        'hair care': ['dry hair', 'oily hair', 'dandruff', 'hair loss', 'color protection'],
-        'intimate': ['wash', 'moisturizer', 'soothing'],
-        'kids care': ['skin protection', 'hair wash', 'body wash'],
-        'oral care': ['whitening', 'sensitive teeth', 'gum care', 'breath freshening'],
-        'muscles & joints': ['pain relief', 'massage', 'soothing'],
-        'antiseptics': ['sanitizer', 'wound care', 'skin prep'],
-        'anti scar': ['scar reduction', 'stretch marks', 'tissue repair'],
-        'vitamins': ['multivitamins', 'immunity', 'bone health', 'energy'],
-        'supplements': ['collagen', 'omega-3', 'protein', 'herbal'],
-        'wellness': ['stress relief', 'sleep aid', 'detox', 'digestion']
-      };
+      const cosmeticsSubcategories = ['skin care', 'hair care', 'intimate', 'kids care', 'oral care', 'muscles & joints', 'antiseptics', 'anti scar'];
+      const nutrientsSubcategories = ['vitamins', 'supplements', 'wellness'];
       const category = req.body.category;
-      if (category && subcategoryMap[category] && !subcategoryMap[category].includes(value)) {
-        throw new Error(`Invalid subcategory for ${category}. Must be one of: ${subcategoryMap[category].join(', ')}`);
+      if (category === 'cosmetics' && !cosmeticsSubcategories.includes(value)) {
+        throw new Error(`Invalid subcategory for cosmetics. Must be one of: ${cosmeticsSubcategories.join(', ')}`);
+      }
+      if (category === 'nutrients' && !nutrientsSubcategories.includes(value)) {
+        throw new Error(`Invalid subcategory for nutrients. Must be one of: ${nutrientsSubcategories.join(', ')}`);
       }
       return true;
     }),
@@ -172,41 +152,21 @@ export const updateProductValidator = [
     .optional()
     .trim()
     .notEmpty()
-    .isIn([
-      'skin care',
-      'hair care',
-      'intimate',
-      'kids care',
-      'oral care',
-      'muscles & joints',
-      'antiseptics',
-      'anti scar',
-      'vitamins',
-      'supplements',
-      'wellness'
-    ])
-    .withMessage('Invalid category'),
+    .isIn(['cosmetics', 'nutrients'])
+    .withMessage('Category must be either cosmetics or nutrients'),
   body('subcategory')
     .optional()
     .trim()
     .notEmpty()
     .custom((value, { req }) => {
-      const subcategoryMap: Record<string, string[]> = {
-        'skin care': ['dry skin', 'oily skin', 'sensitive skin', 'anti aging', 'hydration'],
-        'hair care': ['dry hair', 'oily hair', 'dandruff', 'hair loss', 'color protection'],
-        'intimate': ['wash', 'moisturizer', 'soothing'],
-        'kids care': ['skin protection', 'hair wash', 'body wash'],
-        'oral care': ['whitening', 'sensitive teeth', 'gum care', 'breath freshening'],
-        'muscles & joints': ['pain relief', 'massage', 'soothing'],
-        'antiseptics': ['sanitizer', 'wound care', 'skin prep'],
-        'anti scar': ['scar reduction', 'stretch marks', 'tissue repair'],
-        'vitamins': ['multivitamins', 'immunity', 'bone health', 'energy'],
-        'supplements': ['collagen', 'omega-3', 'protein', 'herbal'],
-        'wellness': ['stress relief', 'sleep aid', 'detox', 'digestion']
-      };
+      const cosmeticsSubcategories = ['skin care', 'hair care', 'intimate', 'kids care', 'oral care', 'muscles & joints', 'antiseptics', 'anti scar'];
+      const nutrientsSubcategories = ['vitamins', 'supplements', 'wellness'];
       const category = req.body.category;
-      if (category && subcategoryMap[category] && !subcategoryMap[category].includes(value)) {
-        throw new Error(`Invalid subcategory for ${category}`);
+      if (category === 'cosmetics' && !cosmeticsSubcategories.includes(value)) {
+        throw new Error(`Invalid subcategory for cosmetics`);
+      }
+      if (category === 'nutrients' && !nutrientsSubcategories.includes(value)) {
+        throw new Error(`Invalid subcategory for nutrients`);
       }
       return true;
     }),

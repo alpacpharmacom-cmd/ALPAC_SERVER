@@ -59,8 +59,8 @@ async function uploadAndSeed() {
         await Product.create({
           name: fileName,
           image: result.secure_url,
-          category: 'skin care', // Default category
-          subcategory: 'hydration', // Default subcategory
+          category: 'cosmetics', // Default category
+          subcategory: 'skin care', // Default subcategory
           description: `High-quality ${fileName} for your care routine.`,
           price: 0,
           countInStock: DEFAULT_QUANTITY,

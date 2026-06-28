@@ -12,18 +12,7 @@ export interface IReview {
 export interface IProductBase {
   name: string;
   image: string;
-  category:
-    | 'skin care'
-    | 'hair care'
-    | 'intimate'
-    | 'kids care'
-    | 'oral care'
-    | 'muscles & joints'
-    | 'antiseptics'
-    | 'anti scar'
-    | 'vitamins'
-    | 'supplements'
-    | 'wellness';
+  category: 'cosmetics' | 'nutrients';
   subcategory: string;
   description: string;
   rating: number;
@@ -79,46 +68,17 @@ const productSchema = new Schema<IProduct>(
     category: {
       type: String,
       required: true,
-      enum: [
-        'skin care',
-        'hair care',
-        'intimate',
-        'kids care',
-        'oral care',
-        'muscles & joints',
-        'antiseptics',
-        'anti scar',
-        'vitamins',
-        'supplements',
-        'wellness',
-      ],
+      enum: ['cosmetics', 'nutrients'],
     },
     subcategory: {
       type: String,
       required: true,
       enum: [
-        // skin care subcategories
-        'dry skin', 'oily skin', 'sensitive skin', 'anti aging', 'hydration',
-        // hair care subcategories
-        'dry hair', 'oily hair', 'dandruff', 'hair loss', 'color protection',
-        // intimate subcategories
-        'wash', 'moisturizer', 'soothing',
-        // kids care subcategories
-        'skin protection', 'hair wash', 'body wash',
-        // oral care subcategories
-        'whitening', 'sensitive teeth', 'gum care', 'breath freshening',
-        // muscles & joints subcategories
-        'pain relief', 'massage', 'soothing',
-        // antiseptics subcategories
-        'sanitizer', 'wound care', 'skin prep',
-        // anti scar subcategories
-        'scar reduction', 'stretch marks', 'tissue repair',
-        // vitamins subcategories
-        'multivitamins', 'immunity', 'bone health', 'energy',
-        // supplements subcategories
-        'collagen', 'omega-3', 'protein', 'herbal',
-        // wellness subcategories
-        'stress relief', 'sleep aid', 'detox', 'digestion'
+        // Cosmetics subcategories
+        'skin care', 'hair care', 'intimate', 'kids care',
+        'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
+        // Nutrients subcategories
+        'vitamins', 'supplements', 'wellness',
       ],
     },
     description: {
