@@ -7,7 +7,7 @@ import { successResponse } from '../utils/apiResponse';
 export const getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const products = await Product.find({ isActive: { $ne: false } })
     .select(
-      '_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock reviews offer'
+      '_id name image description ingredients howToUse category subcategory price oldPrice discountPercentage rating numReviews countInStock reviews offer'
     )
     .lean();
 
@@ -113,7 +113,7 @@ export const deleteProduct = asyncHandler(
 
 export const createProduct = asyncHandler(
   async (req: AuthRequest, res: Response): Promise<void> => {
-    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer } =
+    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer, ingredients, howToUse } =
       req.body;
 
     const product = new Product({
@@ -129,6 +129,8 @@ export const createProduct = asyncHandler(
       numReviews: 0,
       description,
       offer: offer || { buy: 0, get: 0, isActive: false },
+      ingredients: ingredients || '',
+      howToUse: howToUse || '',
     });
 
     const createdProduct = await product.save();
@@ -138,7 +140,7 @@ export const createProduct = asyncHandler(
 
 export const updateProduct = asyncHandler(
   async (req: AuthRequest, res: Response): Promise<void> => {
-    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer, isActive } =
+    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer, isActive, ingredients, howToUse } =
       req.body;
 
     const product = await Product.findById(req.params.id);
@@ -155,6 +157,8 @@ export const updateProduct = asyncHandler(
       product.discountPercentage = discountPercentage !== undefined ? discountPercentage : product.discountPercentage;
       product.offer = offer !== undefined ? offer : product.offer;
       product.isActive = isActive !== undefined ? isActive : product.isActive;
+      (product as any).ingredients = ingredients !== undefined ? ingredients : (product as any).ingredients;
+      (product as any).howToUse = howToUse !== undefined ? howToUse : (product as any).howToUse;
 
       const updatedProduct = await product.save();
       successResponse(res, updatedProduct, 'Product updated successfully');
