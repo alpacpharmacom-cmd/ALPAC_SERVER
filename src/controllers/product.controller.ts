@@ -7,7 +7,7 @@ import { successResponse } from '../utils/apiResponse';
 export const getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const products = await Product.find({ isActive: { $ne: false } })
     .select(
-      '_id name image description ingredients howToUse category subcategory price oldPrice discountPercentage rating numReviews countInStock reviews offer'
+      '_id name image description ingredients howToUse category brand healthGoal price oldPrice discountPercentage rating numReviews countInStock reviews offer'
     )
     .lean();
 
@@ -28,7 +28,7 @@ export const getTopRatedProducts = asyncHandler(async (req: Request, res: Respon
   const products = await Product.find({ isActive: { $ne: false } })
     .sort({ rating: -1, numReviews: -1 })
     .limit(8)
-    .select('_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock offer')
+    .select('_id name image description category brand healthGoal price oldPrice discountPercentage rating numReviews countInStock offer')
     .lean();
 
   const formattedProducts = products.map((product: any) => {
@@ -45,7 +45,7 @@ export const getNewArrivals = asyncHandler(async (req: Request, res: Response): 
   const products = await Product.find({ isActive: { $ne: false } })
     .sort({ createdAt: -1 })
     .limit(8)
-    .select('_id name image description category subcategory price oldPrice discountPercentage rating numReviews countInStock offer')
+    .select('_id name image description category brand healthGoal price oldPrice discountPercentage rating numReviews countInStock offer')
     .lean();
 
   const formattedProducts = products.map((product: any) => {
@@ -113,7 +113,7 @@ export const deleteProduct = asyncHandler(
 
 export const createProduct = asyncHandler(
   async (req: AuthRequest, res: Response): Promise<void> => {
-    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer, ingredients, howToUse } =
+    const { name, price, description, image, category, brand, healthGoal, countInStock, oldPrice, discountPercentage, offer, ingredients, howToUse } =
       req.body;
 
     const product = new Product({
@@ -122,7 +122,8 @@ export const createProduct = asyncHandler(
       user: req.user._id,
       image,
       category,
-      subcategory,
+      brand,
+      healthGoal,
       countInStock,
       oldPrice: oldPrice || 0,
       discountPercentage: discountPercentage || 0,
@@ -140,7 +141,7 @@ export const createProduct = asyncHandler(
 
 export const updateProduct = asyncHandler(
   async (req: AuthRequest, res: Response): Promise<void> => {
-    const { name, price, description, image, category, subcategory, countInStock, oldPrice, discountPercentage, offer, isActive, ingredients, howToUse } =
+    const { name, price, description, image, category, brand, healthGoal, countInStock, oldPrice, discountPercentage, offer, isActive, ingredients, howToUse } =
       req.body;
 
     const product = await Product.findById(req.params.id);
@@ -151,7 +152,8 @@ export const updateProduct = asyncHandler(
       product.description = description !== undefined ? description : product.description;
       product.image = image !== undefined ? image : product.image;
       product.category = category !== undefined ? category : product.category;
-      product.subcategory = subcategory !== undefined ? subcategory : product.subcategory;
+      product.brand = brand !== undefined ? brand : product.brand;
+      product.healthGoal = healthGoal !== undefined ? healthGoal : product.healthGoal;
       product.countInStock = countInStock !== undefined ? countInStock : product.countInStock;
       product.oldPrice = oldPrice !== undefined ? oldPrice : product.oldPrice;
       product.discountPercentage = discountPercentage !== undefined ? discountPercentage : product.discountPercentage;

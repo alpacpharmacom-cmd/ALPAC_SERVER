@@ -116,24 +116,24 @@ export const productValidator = [
     .trim()
     .notEmpty()
     .withMessage('Category is required')
-    .isIn(['cosmetics', 'nutrients'])
-    .withMessage('Category must be either cosmetics or nutrients'),
-  body('subcategory')
+    .isIn([
+      'skin care', 'hair care', 'intimate', 'kids care',
+      'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
+      'vitamins', 'supplements', 'wellness'
+    ])
+    .withMessage('Category must be a valid ALPAC category'),
+  body('brand')
     .trim()
     .notEmpty()
-    .withMessage('Subcategory is required')
-    .custom((value, { req }) => {
-      const cosmeticsSubcategories = ['skin care', 'hair care', 'intimate', 'kids care', 'oral care', 'muscles & joints', 'antiseptics', 'anti scar'];
-      const nutrientsSubcategories = ['vitamins', 'supplements', 'wellness'];
-      const category = req.body.category;
-      if (category === 'cosmetics' && !cosmeticsSubcategories.includes(value)) {
-        throw new Error(`Invalid subcategory for cosmetics. Must be one of: ${cosmeticsSubcategories.join(', ')}`);
-      }
-      if (category === 'nutrients' && !nutrientsSubcategories.includes(value)) {
-        throw new Error(`Invalid subcategory for nutrients. Must be one of: ${nutrientsSubcategories.join(', ')}`);
-      }
-      return true;
-    }),
+    .withMessage('Brand is required')
+    .isLength({ max: 100 })
+    .escape(),
+  body('healthGoal')
+    .trim()
+    .notEmpty()
+    .withMessage('Health goal is required')
+    .isLength({ max: 100 })
+    .escape(),
   body('countInStock')
     .isInt({ min: 0 })
     .withMessage('Count in stock must be a non-negative integer'),
@@ -152,24 +152,14 @@ export const updateProductValidator = [
     .optional()
     .trim()
     .notEmpty()
-    .isIn(['cosmetics', 'nutrients'])
-    .withMessage('Category must be either cosmetics or nutrients'),
-  body('subcategory')
-    .optional()
-    .trim()
-    .notEmpty()
-    .custom((value, { req }) => {
-      const cosmeticsSubcategories = ['skin care', 'hair care', 'intimate', 'kids care', 'oral care', 'muscles & joints', 'antiseptics', 'anti scar'];
-      const nutrientsSubcategories = ['vitamins', 'supplements', 'wellness'];
-      const category = req.body.category;
-      if (category === 'cosmetics' && !cosmeticsSubcategories.includes(value)) {
-        throw new Error(`Invalid subcategory for cosmetics`);
-      }
-      if (category === 'nutrients' && !nutrientsSubcategories.includes(value)) {
-        throw new Error(`Invalid subcategory for nutrients`);
-      }
-      return true;
-    }),
+    .isIn([
+      'skin care', 'hair care', 'intimate', 'kids care',
+      'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
+      'vitamins', 'supplements', 'wellness'
+    ])
+    .withMessage('Category must be a valid ALPAC category'),
+  body('brand').optional().trim().notEmpty().isLength({ max: 100 }).escape(),
+  body('healthGoal').optional().trim().notEmpty().isLength({ max: 100 }).escape(),
   body('countInStock').optional().isInt({ min: 0 }),
   validateRequest,
 ];

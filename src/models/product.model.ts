@@ -12,8 +12,20 @@ export interface IReview {
 export interface IProductBase {
   name: string;
   image: string;
-  category: 'cosmetics' | 'nutrients';
-  subcategory: string;
+  category:
+    | 'skin care'
+    | 'hair care'
+    | 'intimate'
+    | 'kids care'
+    | 'oral care'
+    | 'muscles & joints'
+    | 'antiseptics'
+    | 'anti scar'
+    | 'vitamins'
+    | 'supplements'
+    | 'wellness';
+  brand: string;
+  healthGoal: string;
   description: string;
   rating: number;
   numReviews: number;
@@ -70,18 +82,21 @@ const productSchema = new Schema<IProduct>(
     category: {
       type: String,
       required: true,
-      enum: ['cosmetics', 'nutrients'],
-    },
-    subcategory: {
-      type: String,
-      required: true,
       enum: [
-        // Cosmetics subcategories
         'skin care', 'hair care', 'intimate', 'kids care',
         'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
-        // Nutrients subcategories
         'vitamins', 'supplements', 'wellness',
       ],
+    },
+    brand: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    healthGoal: {
+      type: String,
+      required: true,
+      default: '',
     },
     description: {
       type: String,
@@ -141,8 +156,8 @@ const productSchema = new Schema<IProduct>(
 );
 
 productSchema.index({ category: 1 });
-productSchema.index({ subcategory: 1 });
-productSchema.index({ category: 1, subcategory: 1 });
+productSchema.index({ brand: 1 });
+productSchema.index({ healthGoal: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ rating: -1 });
 
