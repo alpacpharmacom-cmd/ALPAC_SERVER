@@ -42,6 +42,65 @@ const connectDB = async () => {
   try {
     const mongooseInstance = await cached!.promise;
     cached!.conn = mongooseInstance.connection;
+
+    // Run database category & health goal auto-migrations
+    try {
+      const Product = mongooseInstance.models.Product || mongooseInstance.model('Product');
+      if (Product) {
+        const rawProducts = await Product.collection.find({}).toArray();
+        let migratedCount = 0;
+        for (const raw of rawProducts) {
+          let updatedCategory = null;
+          if (['vitamins', 'supplements', 'wellness'].includes(raw.category)) {
+            updatedCategory = 'nutrients';
+          } else if (raw.category === 'cosmetics' && raw.subcategory) {
+            updatedCategory = raw.subcategory;
+          } else if (raw.category === 'nutrients' && raw.subcategory && raw.subcategory !== 'nutrients') {
+            updatedCategory = 'nutrients';
+          }
+
+          if (updatedCategory) {
+            await Product.collection.updateOne(
+              { _id: raw._id },
+              { $set: { category: updatedCategory } }
+            );
+            migratedCount++;
+          }
+        }
+        if (migratedCount > 0) {
+          console.log(`[database]: Auto-migrated category for ${migratedCount} products.`);
+        }
+
+        // Map health goals
+        const mappings = [
+          { old: 'Immunity Boost', new: 'Immunity Support' },
+          { old: 'Energy Support', new: 'Energy & Vitality' },
+          { old: 'Daily Wellness', new: 'Hydration & Electrolytes' },
+          { old: 'Bone & Joint', new: 'Bone & Joints Health' },
+          { old: 'Muscle Building', new: 'Fitness & Sports Nutrition' },
+          { old: 'Weight Management', new: 'Beauty & Weight Loss' },
+          { old: 'Heart Health', new: 'Energy & Vitality' },
+          { old: 'Digestive Health', new: 'Digestive & Gut Health' },
+          { old: 'Sleep Support', new: 'Relaxation & Sleep' },
+          { old: 'Stress Relief', new: 'Relaxation & Sleep' },
+          { old: 'Relaxation & Calm', new: 'Relaxation & Sleep' }
+        ];
+
+        let migratedGoalsCount = 0;
+        for (const mapping of mappings) {
+          const updateGoalRes = await Product.updateMany(
+            { category: 'nutrients', healthGoal: mapping.old },
+            { $set: { healthGoal: mapping.new } }
+          );
+          migratedGoalsCount += updateGoalRes.modifiedCount;
+        }
+        if (migratedGoalsCount > 0) {
+          console.log(`[database]: Auto-migrated health goals for ${migratedGoalsCount} products.`);
+        }
+      }
+    } catch (migrationError) {
+      console.error('[database]: Connection migration runner failed:', migrationError);
+    }
   } catch (error) {
     cached!.promise = null; // Reset promise so we can attempt to connect again later
     console.error('[database]: Connection error:', error);

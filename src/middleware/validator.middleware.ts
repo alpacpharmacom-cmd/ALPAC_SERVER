@@ -119,7 +119,7 @@ export const productValidator = [
     .isIn([
       'skin care', 'hair care', 'intimate', 'kids care',
       'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
-      'vitamins', 'supplements', 'wellness'
+      'nutrients'
     ])
     .withMessage('Category must be a valid ALPAC category'),
   body('brand')
@@ -155,7 +155,7 @@ export const updateProductValidator = [
     .isIn([
       'skin care', 'hair care', 'intimate', 'kids care',
       'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
-      'vitamins', 'supplements', 'wellness'
+      'nutrients'
     ])
     .withMessage('Category must be a valid ALPAC category'),
   body('brand').optional().trim().notEmpty().isLength({ max: 100 }).escape(),
