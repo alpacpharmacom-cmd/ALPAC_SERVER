@@ -47,8 +47,8 @@ app.use(cookieParser());
 app.use(jsonErrorHandler);
 
 // ==================== INPUT SANITIZATION ====================
-app.use(hpp());           // Prevent HTTP Parameter Pollution
-app.use(xssSanitizer);    // Strip XSS from all string inputs
+app.use(hpp()); // Prevent HTTP Parameter Pollution
+app.use(xssSanitizer); // Strip XSS from all string inputs
 
 // ==================== ROUTES ====================
 // System Routes

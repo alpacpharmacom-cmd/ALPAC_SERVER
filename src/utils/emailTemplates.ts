@@ -99,10 +99,14 @@ export const getOrderAcceptedTemplate = (order: GenericOrder): string => {
         <p>Great news! Your order has been reviewed and <strong style="color: #2D4B38;">accepted</strong> by our team. We are now preparing your botanical selections for dispatch.</p>
         <p>Order Reference: <strong>#${String(order._id).slice(-8).toUpperCase()}</strong></p>
 
-        ${order.adminNote ? `
+        ${
+          order.adminNote
+            ? `
         <div style="margin: 20px 0; padding: 15px; background-color: #e8f5e9; border-left: 4px solid #2D4B38; border-radius: 4px;">
           <p style="margin: 0; font-style: italic; color: #1a2e1f;"><strong>Note from our team:</strong> ${order.adminNote}</p>
-        </div>` : ''}
+        </div>`
+            : ''
+        }
 
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
           <thead>
@@ -143,10 +147,14 @@ export const getOrderDeclinedTemplate = (order: GenericOrder): string => {
         <p>Hello <strong>${order.user?.name || 'Valued Customer'}</strong>,</p>
         <p>We regret to inform you that your order <strong>#${String(order._id).slice(-8).toUpperCase()}</strong> could not be fulfilled at this time and has been <strong style="color: #c62828;">declined</strong>.</p>
 
-        ${order.adminNote ? `
+        ${
+          order.adminNote
+            ? `
         <div style="margin: 20px 0; padding: 15px; background-color: #fdecea; border-left: 4px solid #c62828; border-radius: 4px;">
           <p style="margin: 0; font-style: italic; color: #b71c1c;"><strong>Reason from our team:</strong> ${order.adminNote}</p>
-        </div>` : ''}
+        </div>`
+            : ''
+        }
 
         <p>No charge has been made. You are welcome to place a new order or contact our support team for assistance.</p>
         <p style="margin-top: 30px; font-size: 12px; color: #777;">Thank you for your understanding. We hope to serve you again soon.</p>

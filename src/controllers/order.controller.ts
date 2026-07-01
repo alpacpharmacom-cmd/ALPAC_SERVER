@@ -7,7 +7,12 @@ import { Cart } from '../models/cart.model';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { successResponse } from '../utils/apiResponse';
 import { sendEmail } from '../utils/sendEmail';
-import { getOrderCreatedTemplate, getOrderAcceptedTemplate, getOrderDeclinedTemplate, getOrderCancelledTemplate } from '../utils/emailTemplates';
+import {
+  getOrderCreatedTemplate,
+  getOrderAcceptedTemplate,
+  getOrderDeclinedTemplate,
+  getOrderCancelledTemplate,
+} from '../utils/emailTemplates';
 
 interface PopulatedUser {
   _id: mongoose.Types.ObjectId;
@@ -75,20 +80,23 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
 
       if (product.countInStock < qty) {
         res.status(400);
-        throw new Error(
-          `Insufficient stock for "${product.name}". `
-        );
+        throw new Error(`Insufficient stock for "${product.name}". `);
       }
 
       const effectivePrice = Number(product.price.toFixed(2));
       let itemPrice = effectivePrice * qty;
 
       // Apply Buy X Get Y Offer
-      if (product.offer && product.offer.isActive && product.offer.buy > 0 && product.offer.get > 0) {
+      if (
+        product.offer &&
+        product.offer.isActive &&
+        product.offer.buy > 0 &&
+        product.offer.get > 0
+      ) {
         const { buy, get } = product.offer;
         const bundles = Math.floor(qty / (buy + get));
         const remainder = qty % (buy + get);
-        const paidQuantity = (bundles * buy) + Math.min(remainder, buy);
+        const paidQuantity = bundles * buy + Math.min(remainder, buy);
         itemPrice = effectivePrice * paidQuantity;
       }
 
@@ -334,8 +342,10 @@ export const acceptOrder = asyncHandler(async (req: AuthRequest, res: Response) 
     await session.commitTransaction();
 
     // Notify the user via email (Non-blocking)
-    const populatedOrder = (await Order.findById(order._id)
-      .populate('user', 'name email')) as unknown as PopulatedOrder;
+    const populatedOrder = (await Order.findById(order._id).populate(
+      'user',
+      'name email'
+    )) as unknown as PopulatedOrder;
 
     if (populatedOrder && populatedOrder.user?.email) {
       sendEmail({
@@ -375,8 +385,10 @@ export const declineOrder = asyncHandler(async (req: AuthRequest, res: Response)
   const updatedOrder = await order.save();
 
   // Notify the user via email (Non-blocking)
-  const populatedOrder = (await Order.findById(order._id)
-    .populate('user', 'name email')) as unknown as PopulatedOrder;
+  const populatedOrder = (await Order.findById(order._id).populate(
+    'user',
+    'name email'
+  )) as unknown as PopulatedOrder;
 
   if (populatedOrder && populatedOrder.user?.email) {
     sendEmail({

@@ -15,8 +15,6 @@ export interface IProductBase {
   category:
     | 'skin care'
     | 'hair care'
-    | 'intimate'
-    | 'kids care'
     | 'oral care'
     | 'muscles & joints'
     | 'antiseptics'
@@ -81,8 +79,12 @@ const productSchema = new Schema<IProduct>(
       type: String,
       required: true,
       enum: [
-        'skin care', 'hair care', 'intimate', 'kids care',
-        'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
+        'skin care',
+        'hair care',
+        'oral care',
+        'muscles & joints',
+        'antiseptics',
+        'anti scar',
         'nutrients',
       ],
     },
@@ -93,7 +95,6 @@ const productSchema = new Schema<IProduct>(
     },
     healthGoal: {
       type: String,
-      required: true,
       default: '',
     },
     description: {

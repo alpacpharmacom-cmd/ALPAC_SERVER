@@ -38,7 +38,14 @@ router.put('/profile', verifyToken, updateUserValidator, updateUserProfile);
 //router.post('/createUser', registerValidator, createUser);
 router.get('/', verifyToken, verifyAdmin, getUsers);
 router.get('/:id', verifyToken, verifyAdmin, mongoIdParamValidator('id'), getUserById);
-router.put('/:id', verifyToken, verifyAdmin, mongoIdParamValidator('id'), updateUserValidator, updateUser);
+router.put(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  mongoIdParamValidator('id'),
+  updateUserValidator,
+  updateUser
+);
 router.delete('/:id', verifyToken, verifyAdmin, mongoIdParamValidator('id'), deleteUser);
 
 export { router as userRouter };

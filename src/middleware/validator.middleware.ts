@@ -117,20 +117,23 @@ export const productValidator = [
     .notEmpty()
     .withMessage('Category is required')
     .isIn([
-      'skin care', 'hair care', 'intimate', 'kids care',
-      'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
-      'nutrients'
+      'skin care',
+      'hair care',
+      'oral care',
+      'muscles & joints',
+      'antiseptics',
+      'anti scar',
+      'nutrients',
     ])
     .withMessage('Category must be a valid ALPAC category'),
-  body('brand')
-    .trim()
-    .notEmpty()
-    .withMessage('Brand is required')
-    .isLength({ max: 100 })
-    .escape(),
+  body('brand').trim().notEmpty().withMessage('Brand is required').isLength({ max: 100 }).escape(),
   body('healthGoal')
-    .trim()
-    .notEmpty()
+    .custom((value, { req }) => {
+      if (req.body.category === 'antiseptics') {
+        return true;
+      }
+      return typeof value === 'string' && value.trim().length > 0;
+    })
     .withMessage('Health goal is required')
     .isLength({ max: 100 })
     .escape(),
@@ -153,13 +156,27 @@ export const updateProductValidator = [
     .trim()
     .notEmpty()
     .isIn([
-      'skin care', 'hair care', 'intimate', 'kids care',
-      'oral care', 'muscles & joints', 'antiseptics', 'anti scar',
-      'nutrients'
+      'skin care',
+      'hair care',
+      'oral care',
+      'muscles & joints',
+      'antiseptics',
+      'anti scar',
+      'nutrients',
     ])
     .withMessage('Category must be a valid ALPAC category'),
   body('brand').optional().trim().notEmpty().isLength({ max: 100 }).escape(),
-  body('healthGoal').optional().trim().notEmpty().isLength({ max: 100 }).escape(),
+  body('healthGoal')
+    .optional()
+    .custom((value, { req }) => {
+      if (req.body.category === 'antiseptics' || value === '') {
+        return true;
+      }
+      return typeof value === 'string' && value.trim().length > 0;
+    })
+    .withMessage('Health goal must not be empty')
+    .isLength({ max: 100 })
+    .escape(),
   body('countInStock').optional().isInt({ min: 0 }),
   validateRequest,
 ];
@@ -183,7 +200,9 @@ export const cartItemValidator = [
 
 // Order Validators
 export const orderValidator = [
-  body('orderItems').isArray({ min: 1, max: 50 }).withMessage('Order must contain between 1 and 50 items'),
+  body('orderItems')
+    .isArray({ min: 1, max: 50 })
+    .withMessage('Order must contain between 1 and 50 items'),
   body('orderItems.*.product').isMongoId().withMessage('Invalid product ID in order items'),
   body('orderItems.*.quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
   body('shippingAddress').notEmpty().withMessage('Shipping address is required'),

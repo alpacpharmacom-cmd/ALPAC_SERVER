@@ -55,7 +55,11 @@ const connectDB = async () => {
             updatedCategory = 'nutrients';
           } else if (raw.category === 'cosmetics' && raw.subcategory) {
             updatedCategory = raw.subcategory;
-          } else if (raw.category === 'nutrients' && raw.subcategory && raw.subcategory !== 'nutrients') {
+          } else if (
+            raw.category === 'nutrients' &&
+            raw.subcategory &&
+            raw.subcategory !== 'nutrients'
+          ) {
             updatedCategory = 'nutrients';
           }
 
@@ -83,7 +87,7 @@ const connectDB = async () => {
           { old: 'Digestive Health', new: 'Digestive & Gut Health' },
           { old: 'Sleep Support', new: 'Relaxation & Sleep' },
           { old: 'Stress Relief', new: 'Relaxation & Sleep' },
-          { old: 'Relaxation & Calm', new: 'Relaxation & Sleep' }
+          { old: 'Relaxation & Calm', new: 'Relaxation & Sleep' },
         ];
 
         let migratedGoalsCount = 0;

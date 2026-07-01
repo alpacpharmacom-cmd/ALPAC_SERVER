@@ -195,7 +195,6 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
       html: getPasswordResetTemplate(resetUrl),
     });
 
-
     successResponse(res, null, 'Email sent');
   } catch (err) {
     // eslint-disable-next-line no-console

@@ -6,7 +6,10 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import { successResponse } from '../utils/apiResponse';
 
 export const getCart = asyncHandler(async (req: AuthRequest, res: Response) => {
-  let cart = await Cart.findOne({ user: req.user._id }).populate({ path: 'items.product', select: '-countInStock' });
+  let cart = await Cart.findOne({ user: req.user._id }).populate({
+    path: 'items.product',
+    select: '-countInStock',
+  });
 
   if (!cart) {
     cart = await Cart.create({ user: req.user._id, items: [] });
@@ -14,7 +17,7 @@ export const getCart = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Filter out items with null products (deleted products)
     const originalCount = cart.items.length;
     cart.items = cart.items.filter((item: any) => item.product !== null) as any;
-    
+
     // If we removed any items, save the cleaned-up cart
     if (cart.items.length !== originalCount) {
       await cart.save();
@@ -105,7 +108,6 @@ export const updateCartItemQuantity = asyncHandler(async (req: AuthRequest, res:
     res.status(404);
     throw new Error('Product no longer exists');
   }
-
 
   cart.items[itemIndex].quantity = qty;
   await cart.save();

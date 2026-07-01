@@ -25,7 +25,7 @@ async function uploadAndSeed() {
 
     // Read images from directory
     const files = fs.readdirSync(IMAGES_DIR);
-    const imageFiles = files.filter(file => 
+    const imageFiles = files.filter((file) =>
       ['.jpg', '.jpeg', '.png', '.webp'].includes(path.extname(file).toLowerCase())
     );
 

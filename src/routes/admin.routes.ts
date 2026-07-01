@@ -7,4 +7,3 @@ const adminRouter = Router();
 adminRouter.get('/stats', verifyToken, verifyAdmin, getDashboardStats);
 
 export { adminRouter };
- 

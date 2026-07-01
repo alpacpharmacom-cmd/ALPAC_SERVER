@@ -28,8 +28,22 @@ router.put('/:id/cancel', verifyToken, mongoIdParamValidator('id'), cancelOrder)
 // Admin
 router.get('/', verifyToken, verifyAdmin, getAllOrders);
 router.get('/:id', verifyToken, verifyAdmin, mongoIdParamValidator('id'), getOrderById);
-router.put('/:id/accept', verifyToken, verifyAdmin, mongoIdParamValidator('id'), adminNoteValidator, acceptOrder);
-router.put('/:id/decline', verifyToken, verifyAdmin, mongoIdParamValidator('id'), adminNoteValidator, declineOrder);
+router.put(
+  '/:id/accept',
+  verifyToken,
+  verifyAdmin,
+  mongoIdParamValidator('id'),
+  adminNoteValidator,
+  acceptOrder
+);
+router.put(
+  '/:id/decline',
+  verifyToken,
+  verifyAdmin,
+  mongoIdParamValidator('id'),
+  adminNoteValidator,
+  declineOrder
+);
 router.put(
   '/:id/status',
   verifyToken,

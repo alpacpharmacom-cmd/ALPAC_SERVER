@@ -10,9 +10,10 @@ const products = [
     image: '/images/products/orizzonte_cream.jpg',
     category: 'skin care',
     brand: 'ALPAC',
-    healthGoal: 'Sensitive Skin',
-    description: 'Advanced dermatological cream for skin restoration and deep hydration. Formulated for sensitive skin with pure botanical extracts.',
-    price: 45.00,
+    healthGoal: 'Skin Healing',
+    description:
+      'Advanced dermatological cream for skin restoration and deep hydration. Formulated for sensitive skin with pure botanical extracts.',
+    price: 45.0,
     countInStock: 20,
     rating: 4.9,
     numReviews: 56,
@@ -22,9 +23,10 @@ const products = [
     image: '/images/products/calmohist_lotion2.jpg',
     category: 'skin care',
     brand: 'ALPAC',
-    healthGoal: 'Hydration',
-    description: 'Soothing lotion designed to calm skin irritation and provide long-lasting moisture. Ideal for daily ritual and restorative care.',
-    price: 38.00,
+    healthGoal: 'Skin Healing',
+    description:
+      'Soothing lotion designed to calm skin irritation and provide long-lasting moisture. Ideal for daily ritual and restorative care.',
+    price: 38.0,
     countInStock: 15,
     rating: 4.8,
     numReviews: 42,
@@ -34,9 +36,10 @@ const products = [
     image: '/images/products/gosay_wash.jpg',
     category: 'skin care',
     brand: 'ALPAC',
-    healthGoal: 'Acne & Blemish',
-    description: 'Gentle clarifying facial wash that removes impurities while maintaining the skin\'s natural moisture barrier.',
-    price: 32.00,
+    healthGoal: 'E-Majestic Skin Care',
+    description:
+      "Gentle clarifying facial wash that removes impurities while maintaining the skin's natural moisture barrier.",
+    price: 32.0,
     countInStock: 30,
     rating: 4.7,
     numReviews: 89,
@@ -46,9 +49,10 @@ const products = [
     image: '/images/products/betalpac.jpg',
     category: 'antiseptics',
     brand: 'ALPAC',
-    healthGoal: 'First Aid',
-    description: 'Professional grade solution for skin hygiene and protection. A staple in the ALPAC therapeutic botanical collection.',
-    price: 28.00,
+    healthGoal: '',
+    description:
+      'Professional grade solution for skin hygiene and protection. A staple in the ALPAC therapeutic botanical collection.',
+    price: 28.0,
     countInStock: 50,
     rating: 4.9,
     numReviews: 15,
@@ -59,8 +63,9 @@ const products = [
     category: 'nutrients',
     brand: 'ALPAC',
     healthGoal: 'Relaxation & Sleep',
-    description: 'Pure botanical oils for holistic wellness and skin nourishment. Cold-pressed to preserve active nutrients.',
-    price: 65.00,
+    description:
+      'Pure botanical oils for holistic wellness and skin nourishment. Cold-pressed to preserve active nutrients.',
+    price: 65.0,
     countInStock: 10,
     rating: 5.0,
     numReviews: 24,
@@ -72,7 +77,7 @@ const products = [
     brand: 'ALPAC',
     healthGoal: 'Bone & Joints Health',
     description: 'Specialized botanical supplement for internal wellness and metabolic support.',
-    price: 52.00,
+    price: 52.0,
     countInStock: 18,
     rating: 4.6,
     numReviews: 31,
@@ -80,33 +85,34 @@ const products = [
   {
     name: 'Gosay RollOn Silver',
     image: '/images/products/gosay_rollon_silver.jpg',
-    category: 'intimate',
+    category: 'skin care',
     brand: 'ALPAC',
-    healthGoal: 'Daily Freshness',
-    description: 'Premium roll-on protection with botanical extracts for all-day freshness and care.',
-    price: 18.00,
+    healthGoal: 'Diodrant',
+    description:
+      'Premium roll-on protection with botanical extracts for all-day freshness and care.',
+    price: 18.0,
     countInStock: 40,
     rating: 4.7,
     numReviews: 67,
-  }
+  },
 ];
 
 const seed = async () => {
   try {
     const uri = process.env.MONGODB_URI;
     if (!uri) throw new Error('MONGODB_URI not found');
-    
+
     await mongoose.connect(uri);
     console.log('MongoDB Connected for seeding...');
 
     // 1. Ensure all configured admins have accounts
     const adminEmails = (process.env.ADMIN_EMAILS || 'admin@Alpac.com')
       .split(',')
-      .map(e => e.trim().toLowerCase())
-      .filter(e => e !== '');
-    
+      .map((e) => e.trim().toLowerCase())
+      .filter((e) => e !== '');
+
     console.log(`Ensuring ${adminEmails.length} admin accounts exist...`);
-    
+
     const hashedPassword = await bcrypt.hash('Admin123!', 10);
     let firstAdmin: any = null;
 
@@ -117,7 +123,7 @@ const seed = async () => {
           name: `Admin (${email.split('@')[0]})`,
           email: email,
           password: hashedPassword,
-          phone: '1234567890'
+          phone: '1234567890',
         });
         console.log(`+ Created admin account: ${email}`);
       } else {
@@ -130,10 +136,10 @@ const seed = async () => {
     await Product.deleteMany({});
     console.log('Cleared existing products');
 
-    const productsWithAdmin = products.map(p => ({
+    const productsWithAdmin = products.map((p) => ({
       ...p,
       user: firstAdmin!._id,
-      reviews: []
+      reviews: [],
     }));
 
     await Product.insertMany(productsWithAdmin);
