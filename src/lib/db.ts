@@ -88,12 +88,14 @@ const connectDB = async () => {
           { old: 'Sleep Support', new: 'Relaxation & Sleep' },
           { old: 'Stress Relief', new: 'Relaxation & Sleep' },
           { old: 'Relaxation & Calm', new: 'Relaxation & Sleep' },
+          { old: 'E-Majestic Skin Care', new: 'Oily & Combined Skin' },
+          { old: 'Diodrant', new: 'Deodorant' },
         ];
 
         let migratedGoalsCount = 0;
         for (const mapping of mappings) {
           const updateGoalRes = await Product.updateMany(
-            { category: 'nutrients', healthGoal: mapping.old },
+            { healthGoal: mapping.old },
             { $set: { healthGoal: mapping.new } }
           );
           migratedGoalsCount += updateGoalRes.modifiedCount;

@@ -36,7 +36,7 @@ const products = [
     image: '/images/products/gosay_wash.jpg',
     category: 'skin care',
     brand: 'ALPAC',
-    healthGoal: 'E-Majestic Skin Care',
+    healthGoal: 'Oily & Combined Skin',
     description:
       "Gentle clarifying facial wash that removes impurities while maintaining the skin's natural moisture barrier.",
     price: 32.0,
@@ -87,7 +87,7 @@ const products = [
     image: '/images/products/gosay_rollon_silver.jpg',
     category: 'skin care',
     brand: 'ALPAC',
-    healthGoal: 'Diodrant',
+    healthGoal: 'Deodorant',
     description:
       'Premium roll-on protection with botanical extracts for all-day freshness and care.',
     price: 18.0,

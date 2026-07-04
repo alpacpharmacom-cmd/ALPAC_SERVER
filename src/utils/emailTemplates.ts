@@ -26,7 +26,7 @@ export const getOrderCreatedTemplate = (order: PopulatedOrder): string => {
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toFixed(2)}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">L.E ${item.price.toFixed(2)}</td>
     </tr>
   `
     )
@@ -52,11 +52,11 @@ export const getOrderCreatedTemplate = (order: PopulatedOrder): string => {
       </table>
       
       <div style="margin-top: 20px; text-align: right;">
-        <p>Subtotal: $${order.itemsPrice.toFixed(2)}</p>
-        <p>Shipping: $${order.shippingPrice.toFixed(2)}</p>
-        <p>Tax: $${order.taxPrice.toFixed(2)}</p>
+        <p>Subtotal: L.E ${order.itemsPrice.toFixed(2)}</p>
+        <p>Shipping: L.E ${order.shippingPrice.toFixed(2)}</p>
+        <p>Tax: L.E ${order.taxPrice.toFixed(2)}</p>
         <hr style="border: 0; border-top: 1px solid #eee;">
-        <h3 style="color: #2e7d32;">Total: $${order.totalPrice.toFixed(2)}</h3>
+        <h3 style="color: #2e7d32;">Total: L.E ${order.totalPrice.toFixed(2)}</h3>
       </div>
       
       <div style="margin-top: 30px; padding: 20px; background-color: #f1f8e9; border-radius: 5px;">
@@ -82,7 +82,7 @@ export const getOrderAcceptedTemplate = (order: GenericOrder): string => {
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toFixed(2)}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">L.E ${item.price.toFixed(2)}</td>
     </tr>
   `
     )
@@ -122,11 +122,11 @@ export const getOrderAcceptedTemplate = (order: GenericOrder): string => {
         </table>
 
         <div style="margin-top: 20px; text-align: right;">
-          <p>Subtotal: $${(order.itemsPrice || 0).toFixed(2)}</p>
-          ${order.discountPrice ? `<p style="color: #2D4B38;">Discount: -$${order.discountPrice.toFixed(2)}</p>` : ''}
-          <p>Shipping: ${order.shippingPrice === 0 ? 'Complimentary' : `$${(order.shippingPrice || 0).toFixed(2)}`}</p>
+          <p>Subtotal: L.E ${(order.itemsPrice || 0).toFixed(2)}</p>
+          ${order.discountPrice ? `<p style="color: #2D4B38;">Discount: -L.E ${order.discountPrice.toFixed(2)}</p>` : ''}
+          <p>Shipping: ${order.shippingPrice === 0 ? 'Complimentary' : `L.E ${(order.shippingPrice || 0).toFixed(2)}`}</p>
           <hr style="border: 0; border-top: 1px solid #eee;">
-          <h3 style="color: #2D4B38;">Total: $${(order.totalPrice || 0).toFixed(2)}</h3>
+          <h3 style="color: #2D4B38;">Total: L.E ${(order.totalPrice || 0).toFixed(2)}</h3>
         </div>
 
         <p style="margin-top: 20px;">You will receive another update once your order has been shipped.</p>
