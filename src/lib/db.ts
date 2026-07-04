@@ -75,6 +75,42 @@ const connectDB = async () => {
           console.log(`[database]: Auto-migrated category for ${migratedCount} products.`);
         }
 
+        // Unescape health goals
+        const allProducts = await Product.collection.find({}).toArray();
+        let unescapedCount = 0;
+        const unescapeString = (str: string): string => {
+          if (!str) return str;
+          let current = str;
+          let previous = '';
+          while (current.includes('&amp;') && current !== previous) {
+            previous = current;
+            current = current.replace(/&amp;/g, '&');
+          }
+          current = current
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#x27;/g, "'")
+            .replace(/&#x2F;/g, '/');
+          return current;
+        };
+
+        for (const raw of allProducts) {
+          if (raw.healthGoal) {
+            const cleanGoal = unescapeString(raw.healthGoal);
+            if (cleanGoal !== raw.healthGoal) {
+              await Product.collection.updateOne(
+                { _id: raw._id },
+                { $set: { healthGoal: cleanGoal } }
+              );
+              unescapedCount++;
+            }
+          }
+        }
+        if (unescapedCount > 0) {
+          console.log(`[database]: Auto-unescaped health goals for ${unescapedCount} products.`);
+        }
+
         // Map health goals
         const mappings = [
           { old: 'Immunity Boost', new: 'Immunity Support' },

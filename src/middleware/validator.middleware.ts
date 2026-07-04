@@ -135,8 +135,7 @@ export const productValidator = [
       return typeof value === 'string' && value.trim().length > 0;
     })
     .withMessage('Health goal is required')
-    .isLength({ max: 100 })
-    .escape(),
+    .isLength({ max: 100 }),
   body('countInStock')
     .isInt({ min: 0 })
     .withMessage('Count in stock must be a non-negative integer'),
@@ -175,8 +174,7 @@ export const updateProductValidator = [
       return typeof value === 'string' && value.trim().length > 0;
     })
     .withMessage('Health goal must not be empty')
-    .isLength({ max: 100 })
-    .escape(),
+    .isLength({ max: 100 }),
   body('countInStock').optional().isInt({ min: 0 }),
   validateRequest,
 ];
