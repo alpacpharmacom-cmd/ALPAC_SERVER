@@ -126,7 +126,7 @@ export const productValidator = [
       'nutrients',
     ])
     .withMessage('Category must be a valid ALPAC category'),
-  body('brand').trim().notEmpty().withMessage('Brand is required').isLength({ max: 100 }).escape(),
+  body('brand').optional({ values: 'falsy' }).trim().isLength({ max: 100 }).escape(),
   body('healthGoal')
     .custom((value, { req }) => {
       if (req.body.category === 'antiseptics') {
@@ -164,7 +164,7 @@ export const updateProductValidator = [
       'nutrients',
     ])
     .withMessage('Category must be a valid ALPAC category'),
-  body('brand').optional().trim().notEmpty().isLength({ max: 100 }).escape(),
+  body('brand').optional({ values: 'falsy' }).trim().isLength({ max: 100 }).escape(),
   body('healthGoal')
     .optional()
     .custom((value, { req }) => {

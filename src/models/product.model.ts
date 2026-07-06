@@ -20,7 +20,7 @@ export interface IProductBase {
     | 'antiseptics'
     | 'anti scar'
     | 'nutrients';
-  brand: string;
+  brand?: string;
   healthGoal: string;
   description: string;
   rating: number;
@@ -90,7 +90,7 @@ const productSchema = new Schema<IProduct>(
     },
     brand: {
       type: String,
-      required: true,
+      required: false,
       default: '',
     },
     healthGoal: {
